@@ -1,1 +1,83 @@
+import tkinter as tk
+from datetime import datetime
+import os
+
+# Funkce pro načtení/uložení jména
+def get_username():
+    filename = "username.txt"
+    if os.path.exists(filename):
+        with open(filename, "r", encoding="utf-8") as f:
+            name = f.read().strip()
+            if name:
+                return name
+    return None
+
+def save_username(name):
+    with open("username.txt", "w", encoding="utf-8") as f:
+        f.write(name.strip())
+
+# Funkce pro pozdrav
+def greet_user():
+    name = get_username()
+    if name:
+        vystup.insert(tk.END, f"Bot: Ahoj {name}, rád tě zase vidím! 🙂\n")
+    else:
+        vystup.insert(tk.END, "Bot: Ahoj! Jak se jmenuješ?\n")
+
+# Funkce pro odpovědi
+def odpovez():
+    dotaz = vstup.get()
+    vystup.insert(tk.END, "Ty: " + dotaz + "\n")
+
+    # Pokud zatím není uložené jméno, první vstup bereme jako jméno
+    name = get_username()
+    if not name:
+        save_username(dotaz)
+        vystup.insert(tk.END, f"Bot: Těší mě, {dotaz}! Budu si tě pamatovat. 🙂\n")
+        vstup.delete(0, tk.END)
+        return
+
+    responses = {
+        "ahoj": f"Ahoj {name}! Rád tě vidím.",
+        "jak se máš": "Mám se dobře, děkuju!",
+        "co děláš": "Povídám si s tebou :)",
+        "kup mi avokádo": "Jsem moc broke :(",
+        "iss live": "https://isslivenow.com/",
+        "na co se tě můžu zeptat ?" : "ahoj, jak se máš, co děláš, kup mi avokádo, iss live, update",
+        "update" : "v dalším update se budeš moc ptát na počasí a pozici iss"
+    }
+
+    odpoved = responses.get(dotaz.lower(), "Promiň, tomu zatím nerozumím.")
+    vystup.insert(tk.END, "Bot: " + odpoved + "\n")
+
+    log.insert(tk.END, f"{datetime.now().strftime('%H:%M:%S')} - Dotaz: {dotaz}\n")
+    log.insert(tk.END, f"{datetime.now().strftime('%H:%M:%S')} - Odpověď: {odpoved}\n")
+    vstup.delete(0, tk.END)
+
+# Hlavní okno
+root = tk.Tk()
+root.title("AI ChatBot")
+
+# Vstupní pole
+vstup = tk.Entry(root, width=50)
+vstup.pack(pady=10)
+
+# Tlačítko
+tlacitko = tk.Button(root, text="Odeslat", command=odpovez)
+tlacitko.pack()
+
+# Výstupní pole
+vystup = tk.Text(root, height=10, width=60)
+vystup.pack(pady=10)
+
+# Logovací okno
+log_okno = tk.Toplevel(root)
+log_okno.title("Logy")
+log = tk.Text(log_okno, height=15, width=50)
+log.pack()
+
+# Spuštění pozdravu
+greet_user()
+
+root.mainloop()
 
